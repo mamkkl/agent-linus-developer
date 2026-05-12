@@ -149,3 +149,45 @@ When Boss corrects your action:
 4. Resume conversation
 
 Do NOT delay logging. Stop conversation flow → store lesson → resume.
+
+## Context Update Sync Protocol
+
+When you make changes to your agent context files, sync them to GitHub.
+
+### Context Files
+Files that are part of your agent context and should be synced:
+- `CLAUDE.md` — Main identity (auto-loaded by Claude Code)
+- `HEARTBEAT.md` — Heartbeat loop state
+- `README.md` — Repository description (managed by you)
+- `.claude/**` — All files in the `.claude/` directory (workflow.md, security.md, openproject.md, etc.)
+
+### Why Sync
+Your agent context is stored in a git repository. Changes must be pushed to GitHub so:
+- Other operators can see the updated agent behavior
+- Context changes persist across container rebuilds
+- Team members can review and approve context evolution
+
+### Sync Workflow
+
+1. **After modifying context files**, commit and push to the repository:
+   ```bash
+   cd /workspace
+   git add CLAUDE.md HEARTBEAT.md README.md .claude/
+   git commit -m "Update [context file name] — [brief reason]"
+   git push origin main
+   ```
+
+2. **If main branch is protected**, create a feature branch and PR:
+   ```bash
+   cd /workspace
+   git checkout -b update-context-[topic]
+   git add CLAUDE.md HEARTBEAT.md README.md .claude/
+   git commit -m "Update [context file name] — [brief reason]"
+   git push -u origin update-context-[topic]
+   ```
+   Then create a PR via `gh pr create --title "..." --body "..."` and notify Boss for review.
+
+### What NOT to Sync
+- `.heartbeat/` — Watermarks and heartbeat state (runtime data)
+- Session logs
+- Temporary workspace files
